@@ -13,13 +13,12 @@ const express = require('express'),
     CLIProgressBar = require('cli-progress-bar');
 
 // Settings:
-const pageSize = 100,
-    conf = require('./conf');
+const conf = require('./conf');
 
 const app = express(),
     server = http.createServer(app),
     client = octonode.client(conf.token),
-    w3c = client.org('w3c'),
+    org = client.org(conf.organisation),
     projectsList = [],
     projectsData = {};
 
@@ -27,7 +26,7 @@ var projectsDone = 0,
     progressBar;
 
 /**
- * Retrieve list of all W3C projects (or a page of them).
+ * Retrieve list of all the organisation's projects (or a page of them).
  *
  * Side-effect: mutates <code>projectsList</code>.
  *
@@ -36,7 +35,7 @@ var projectsDone = 0,
 
 function fetchListOfProjects(cb, pageNo=1) {
 
-    w3c.repos(pageNo, pageSize, (err, data, headers) => {
+    org.repos(pageNo, conf.pageSize, (err, data, headers) => {
 
         if (1 === pageNo) {
             progressBar = new CLIProgressBar();
@@ -90,7 +89,7 @@ function fetchProjectData(projectName) {
     // + description
     // + repository Url
     // + website Url
-    client.get('/repos/w3c/' + projectName, {}, function (err, status, body, headers) {
+    client.get(`/repos/${conf.organisation}/${projectName}`, {}, function (err, status, body, headers) {
         projectsData[projectName]['github_url'] = 'https://github.com/w3c/' + projectName;
         if(err) {
             console.log(err);
@@ -126,7 +125,7 @@ function fetchProjectData(projectName) {
     });
 
     // get number of issues
-    client.get('/repos/w3c/' + projectName + '/issues', {}, function (err, status, body, headers) {
+    client.get(`/repos/${conf.organisation}/${projectName}` + '/issues', {}, function (err, status, body, headers) {
         if(err) {
             console.log(err);
         } else {
@@ -140,7 +139,7 @@ function fetchProjectData(projectName) {
     });
 
     // get number of contributors
-    client.get('/repos/w3c/' + projectName + '/contributors', {}, function (err, status, body, headers) {
+    client.get(`/repos/${conf.organisation}/${projectName}` + '/contributors', {}, function (err, status, body, headers) {
         if(err) {
             console.log(err);
         } else {
@@ -154,7 +153,7 @@ function fetchProjectData(projectName) {
     });
 
     // get number of pending pull requests
-    client.get('/repos/w3c/' + projectName + '/pulls', {}, function (err, status, body, headers) {
+    client.get(`/repos/${conf.organisation}/${projectName}` + '/pulls', {}, function (err, status, body, headers) {
         if(err) {
             console.log(err);
         } else {
@@ -186,7 +185,7 @@ fetchListOfProjects(() => {
         else
             return 0;
     });
-    console.log(`${projectsList.length} public projects:\n${projectsList.join(', ')}`);
+    console.log(`${conf.organisation}'s ${projectsList.length} public projects:\n${projectsList.join(', ')}`);
     progressBar = new CLIProgressBar();
     projectsList.map(fetchProjectData);
 });
@@ -209,9 +208,9 @@ app.get('/api/*', function(req, res) {
     }
 });
 
-server.listen(3000, function() {
-    console.log('listening on *:3000');
+server.listen(conf.port, function() {
+    console.log(`listening on port ${conf.port}`);
     setInterval(function() {
         projectsList.map(fetchProjectData);
-    }, 3600000);
+    }, conf.refreshPeriod * 60 * 1000);
 });
