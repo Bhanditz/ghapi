@@ -21,7 +21,7 @@ edit conf.json # edit at least "organisation" and "token"
 
 Run:
 
-```bash
+```
 npm start
 > ghapi@0.1.0 start /foo/bar/ghapi
 > node --use_strict --throw-deprecation app
