@@ -31,7 +31,7 @@
   "dependencies": {
     "cli-progress-bar": "1.0.1",
     "express": "4.14.0",
-    "octonode": "tripu/octonode"
+    "octonode": "pksunkara/octonode#9e0399efb156b722bde7f40a42e43ec5d4ef5de6"
   },
   "scripts": {
     "start": "node --use_strict --throw-deprecation app"
