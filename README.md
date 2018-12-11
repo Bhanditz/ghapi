@@ -2,6 +2,8 @@
 
 *Node.js proxy to the GitHub API to fetch and aggregate data about an organisation's repositories*
 
+:warning: This project is discontinued, and not being actively maintained.  
+
 ## Howto
 
 Clone and install dependencies:
